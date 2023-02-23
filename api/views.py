@@ -6,6 +6,8 @@ from django.urls import reverse_lazy
 from django.views.generic import FormView, RedirectView
 from rest_framework import generics
 
+from django.shortcuts import redirect
+from django.contrib.auth.forms import AuthenticationForm
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -14,16 +16,14 @@ from .models import Images
 from rest_framework import status
 from .serializers import ImagesSerializer
 
+from django.contrib.auth.views import LoginView
 
-class LoginView(FormView):
-    template_name = "login.html"
+class Login(LoginView):
     form_class = AuthenticationForm
-    success_url = reverse_lazy("api:create")
 
-    def form_valid(self, form):
-        """Security check complete. Log the user in."""
+    def form_valid(self,form):
         login(self.request, form.get_user())
-        return super().form_valid(form)
+
 
 
 class LogoutView(RedirectView):
