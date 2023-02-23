@@ -1,2 +1,4 @@
-pip freeze > requirements.txt
-web: gunicorn api_images:<app_instance> --bind 0.0.0.0:$PORT
+web: gunicorn api_images.wsgi --log-file -
+release: python manage.py makemigrations api --noinput
+release: python manage.py collectstatic --noinput
+release: python manage.py migrate api --noinput

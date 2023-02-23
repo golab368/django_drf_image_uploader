@@ -14,15 +14,16 @@ import os
 from pathlib import Path
 import dj_database_url
 import django_heroku
-django_heroku.settings(locals())
-db_from_env = dj_database_url.config(conn_max_age=600)
-DATABASES = {}
-DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+from dotenv import load_dotenv
+load_dotenv()
+# db_from_env = dj_database_url.config(conn_max_age=600)
+# DATABASES = {}
+# DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 
-# Set up the DATABASE_URL config variable
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# db_from_env = dj_database_url.config(conn_max_age=500)
+# DATABASES['default'].update(db_from_env)
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -30,12 +31,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-*@8a=8xl(91&ufgv5ywi)zc-q5)48y0+!4pdx6xnezb+0(fl7k"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 AUTH_USER_MODEL = "api.User"
 #LOGIN_REDIRECT_URL = '/create/'
 
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -90,15 +92,18 @@ WSGI_APPLICATION = "api_images.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
 DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
 }
+
+
+# DATABASES = {
+#     'default': dj_database_url.config(default='postgres://localhost'),
+# }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -153,3 +158,5 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 if os.environ.get("ENV") == "test":
     CELERY_TASK_ALWAYS_EAGER = True
+
+django_heroku.settings(locals())
