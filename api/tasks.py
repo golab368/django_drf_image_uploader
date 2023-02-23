@@ -1,0 +1,103 @@
+from io import BytesIO
+import os
+import uuid
+
+from PIL import Image
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.utils.text import slugify
+
+
+from .celery import app
+from celery import shared_task
+from django.conf import settings
+import redis
+r = redis.Redis(host='localhost', port=6379, db=0)
+
+
+
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+
+from io import BytesIO
+import os
+import uuid
+import time
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from PIL import Image
+@shared_task
+def generate_thumbnail(uploaded_image_name, account_tier):
+    from .models import Images, Thumbnail, UserProfile
+
+    logger.debug(f"Task generate_thumbnail {uploaded_image_name} with image_id=::::{account_tier}::::")
+
+    sizes = []
+    file_path = os.path.join(settings.MEDIA_ROOT, f"{uploaded_image_name}")
+    if account_tier == UserProfile.BASIC:
+        sizes.append((200, 200))
+    elif account_tier == UserProfile.PREMIUM:
+        sizes.append((200, 200))
+        sizes.append((400, 400))
+    elif account_tier == UserProfile.ENTERPRISE:
+        sizes.append((200, 200))
+        sizes.append((400, 400))
+
+    if not os.path.exists(file_path):
+        logger.error(f"File {file_path} does not exist")
+        return False
+
+    try:
+        # Add delay to allow time for image to be fully saved to database
+        time.sleep(1)
+
+        with open(file_path, 'rb') as file:
+            image = Image.open(file)
+            thumbnail = Thumbnail()
+
+            for i, size in enumerate(sizes):
+                thumb_name = uuid.uuid4().hex
+                thumb_extension = os.path.splitext(uploaded_image_name)[1]
+                thumb_filename = f"{thumb_name}_thumb_{i}{thumb_extension}"
+
+                if thumb_extension in [".jpg", ".jpeg"]:
+                    FTYPE = "JPEG"
+                elif thumb_extension == ".gif":
+                    FTYPE = "GIF"
+                elif thumb_extension == ".png":
+                    FTYPE = "PNG"
+                else:
+                    return False  # Unrecognized file type
+
+                # Save thumbnail to in-memory file as BytesIO
+                temp_thumb = BytesIO()
+                image_copy = image.copy()
+                image_copy.thumbnail(size)
+                image_copy.save(temp_thumb, FTYPE)
+                temp_thumb.seek(0)
+
+                # Create an InMemoryUploadedFile from the bytes data of the thumbnail
+                thumb_data = InMemoryUploadedFile(
+                    temp_thumb,
+                    None,
+                    thumb_filename,
+                    f"image/{FTYPE.lower()}",
+                    temp_thumb.tell(),
+                    None,
+                )
+                if i == 0:
+                    thumbnail.thumbnail_200 = thumb_data
+                elif i == 1:
+                    thumbnail.thumbnail_400 = thumb_data
+
+            # Save thumbnail to database
+            thumbnail.save()
+            images_obj = Images.objects.get(image=uploaded_image_name)
+            images_obj.thumbnail = thumbnail
+            images_obj.save()
+
+            logger.debug(f"Image object get {images_obj} Images thumbnail {images_obj.thumbnail}")
+
+    except:
+        logger.exception(f"Error generating thumbnail for file {file_path}")
