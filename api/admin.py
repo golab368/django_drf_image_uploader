@@ -1,13 +1,10 @@
 from django.contrib import admin
 from django import forms
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.urls import reverse
 from django.utils.html import format_html
-from io import BytesIO
-from PIL import Image
+
 
 from .models import Images, UserProfile, ThumbnailCustom, User
-from django.conf import settings
 
 
 class ImagesForm(forms.ModelForm):

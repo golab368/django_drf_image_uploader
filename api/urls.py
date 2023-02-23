@@ -1,9 +1,6 @@
 from django.urls import path
-from rest_framework.urlpatterns import format_suffix_patterns
 from .views import (
     ImagesCreateView,
-    # generate_expiring_link,
-    # original_file_link,
     LoginView,
     LogoutView,
     UserImagesListView,
@@ -21,10 +18,4 @@ urlpatterns = [
         UserImagesListView.as_view(),
         name="user_images_list",
     ),
-    # path(
-    #     "generate-expiring-link/<slug:slug>/",
-    #     generate_expiring_link,
-    #     name="generate_expiring_link",
-    # ),
-    # path("original_file_link/<int:id>/", original_file_link, name="original_file_link"),
 ]

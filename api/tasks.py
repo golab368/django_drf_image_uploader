@@ -11,8 +11,8 @@ from .celery import app
 from celery import shared_task
 from django.conf import settings
 import redis
-r = redis.Redis(host='localhost', port=6379, db=0)
 
+r = redis.Redis(host="localhost", port=6379, db=0)
 
 
 import logging
@@ -27,11 +27,15 @@ import uuid
 import time
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from PIL import Image
+
+
 @shared_task
 def generate_thumbnail(uploaded_image_name, account_tier):
     from .models import Images, Thumbnail, UserProfile
 
-    logger.debug(f"Task generate_thumbnail {uploaded_image_name} with image_id=::::{account_tier}::::")
+    logger.debug(
+        f"Task generate_thumbnail {uploaded_image_name} with image_id=::::{account_tier}::::"
+    )
 
     sizes = []
     file_path = os.path.join(settings.MEDIA_ROOT, f"{uploaded_image_name}")
@@ -52,7 +56,7 @@ def generate_thumbnail(uploaded_image_name, account_tier):
         # Add delay to allow time for image to be fully saved to database
         time.sleep(1)
 
-        with open(file_path, 'rb') as file:
+        with open(file_path, "rb") as file:
             image = Image.open(file)
             thumbnail = Thumbnail()
 
@@ -97,7 +101,9 @@ def generate_thumbnail(uploaded_image_name, account_tier):
             images_obj.thumbnail = thumbnail
             images_obj.save()
 
-            logger.debug(f"Image object get {images_obj} Images thumbnail {images_obj.thumbnail}")
+            logger.debug(
+                f"Image object get {images_obj} Images thumbnail {images_obj.thumbnail}"
+            )
 
     except:
         logger.exception(f"Error generating thumbnail for file {file_path}")
