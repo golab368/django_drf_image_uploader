@@ -8,7 +8,6 @@ __pycashe__
 .venv
 htmlcov
 .coverage
-db.sqlite3
 # Distribution / packaging 
 .Python build/ 
 develop-eggs/ 
