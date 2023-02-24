@@ -1,13 +1,7 @@
-from django.contrib.auth import login, logout
-from django.contrib.auth.forms import AuthenticationForm
-
-
+from django.contrib.auth import logout
+from django.views.generic import RedirectView
 from django.urls import reverse_lazy
-from django.views.generic import FormView, RedirectView
 from rest_framework import generics
-
-from django.shortcuts import redirect
-from django.contrib.auth.forms import AuthenticationForm
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,19 +9,14 @@ from rest_framework.generics import ListAPIView
 from .models import Images
 from rest_framework import status
 from .serializers import ImagesSerializer
-
 from django.contrib.auth.views import LoginView
 
-class Login(LoginView):
-    form_class = AuthenticationForm
-
-    def form_valid(self,form):
-        login(self.request, form.get_user())
-
-
+class LoginView(LoginView):
+    template_name = "login.html"
+    success_url = reverse_lazy('api:create')
 
 class LogoutView(RedirectView):
-    success_url = reverse_lazy("api:login")
+    url = reverse_lazy('api:login')
 
     def get(self, request, *args, **kwargs):
         logout(request)

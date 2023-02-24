@@ -10,7 +10,7 @@ app_name = "api"
 
 urlpatterns = [
     # other URL patterns here
-    path("login/", LoginView.as_view(template_name='login.html'), name="login"),
+    path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("create/", ImagesCreateView.as_view(), name="create"),
     path(
