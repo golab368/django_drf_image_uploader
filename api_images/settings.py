@@ -154,8 +154,8 @@ MEDIA_URL = "/media/"
 
 # settings.py
 
-CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
-CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379')
+CELERY_BROKER_URL = os.environ.get('REDIS_URL')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL')
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
