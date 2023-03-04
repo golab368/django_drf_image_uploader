@@ -34,9 +34,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = []
 AUTH_USER_MODEL = "api.User"
 #LOGIN_REDIRECT_URL = '/create/'
 
@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "api",
     "django_heroku",
+    "django_extensions",
+
 
 
 ]
@@ -92,18 +94,20 @@ WSGI_APPLICATION = "api_images.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+
+# Sqlite3 database for Tests
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
+# DATABASES = {'default': dj_database_url.config(default=os.environ["DATABASE_URI"])}
 
 # DATABASES = {
 #     'default': dj_database_url.config(default='postgres://localhost'),
 # }
-
+LOGOUT_REDIRECT_URL = "/login/"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -122,6 +126,32 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'verbose',
+#         },
+#         'file': {
+#             'class': 'logging.FileHandler',
+#             'filename': 'api_images/loggs/file.log',
+#         },
+#     },
+#     'formatters': {
+#         'verbose': {
+#             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file', 'console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }
 
 
 # Internationalization
@@ -150,8 +180,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
 
+
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+# #Redis Heroku 
+# CELERY_BROKER_URL = os.environ.get('REDIS_URL')
+# CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL')
+
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

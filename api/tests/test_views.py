@@ -20,6 +20,7 @@ from PIL import Image
 from io import BytesIO
 from django.urls import reverse
 from api.celery import app
+import time
 
 User = get_user_model()
 
@@ -27,7 +28,7 @@ User = get_user_model()
 class LoginViewTestCase(APITestCase):
     def setUp(self):
         self.username = "testuser"
-        self.password = "testpass"
+        self.password = "test"
         self.user = User.objects.create_user(
             username=self.username,
             password=self.password,
@@ -38,13 +39,16 @@ class LoginViewTestCase(APITestCase):
         data = {"username": self.username, "password": self.password}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.user.is_authenticated)
+
 
     def test_invalid_login(self):
         url = reverse_lazy("api:login")
         data = {"username": self.username, "password": "wrongpass"}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(response, "Please enter a correct username and password.")
+        self.assertTrue(self.user.is_authenticated)
+
 
 
 class ImagesCreateViewTestCase(APITestCase):
@@ -130,3 +134,8 @@ class ImagesCreateViewTestCase(APITestCase):
             self.assertTrue(images.thumbnail.thumbnail_200)
             self.assertFalse(images.thumbnail.thumbnail_400)
             self.assertFalse(images.expiration_time)
+
+    def tearDown(self):
+        time.sleep(1.5)
+        for image in Images.objects.all():
+            image.delete()

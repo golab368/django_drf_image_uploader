@@ -1,39 +1,21 @@
-
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Login</title>
-  </head>
-
-    <div class="container">
-      <div class="row">
-        <div class="col-md-4 offset-md-4 mt-5">
-          <h2>Login</h2>
-          <form method="post">
-            {% csrf_token %}
-            {% for field in form %}
-              <div class="form-group">
-                {{ field.label_tag }}
-                {{ field }}
-                {% if field.help_text %}
-                  <small class="form-text text-muted">{{ field.help_text }}</small>
-                {% endif %}
-                {% for error in field.errors %}
-                  <div class="invalid-feedback">{{ error }}</div>
-                {% endfor %}
-              </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-primary">Log in</button>
-          </form>
-          {% if form.non_field_errors %}
-            <div class="alert alert-danger mt-3" role="alert">
-              {{ form.non_field_errors }}
-            </div>
-          {% endif %}
-        </div>
-      </div>
+<head>
+  <title>Login</title>
+</head>
+<body>
+  <h1>Login</h1>
+  <form method="POST" >
+    {% csrf_token %}
+    <div>
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username">
     </div>
-
-  
-  </body>
+    <div>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password">
+    </div>
+    <button type="submit">Login</button>
+  </form>
+</body>
 </html>
