@@ -191,7 +191,7 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 
-if os.environ.get("ENV") == "test":
-    CELERY_TASK_ALWAYS_EAGER = True
+# if os.environ.get("ENV") == "test":
+#     CELERY_TASK_ALWAYS_EAGER = True
 
 django_heroku.settings(locals())
