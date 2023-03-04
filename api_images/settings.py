@@ -96,17 +96,17 @@ WSGI_APPLICATION = "api_images.wsgi.application"
 
 
 # Sqlite3 database for Tests
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 # DATABASES = {'default': dj_database_url.config(default=os.environ["DATABASE_URI"])}
 
-# DATABASES = {
-#     'default': dj_database_url.config(default='postgres://localhost'),
-# }
+DATABASES = {
+    'default': dj_database_url.config(default='postgres://localhost'),
+}
 LOGOUT_REDIRECT_URL = "/login/"
 
 # Password validation
@@ -180,20 +180,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
 
-<<<<<<< HEAD
-# settings.py
 
-CELERY_BROKER_URL = os.environ.get('REDIS_URL')
-CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL')
-=======
-
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+# CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
 # #Redis Heroku 
-# CELERY_BROKER_URL = os.environ.get('REDIS_URL')
-# CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL')
->>>>>>> 486168d
+CELERY_BROKER_URL = os.environ.get('REDIS_URL')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL')
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'

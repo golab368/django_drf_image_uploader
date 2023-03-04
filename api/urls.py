@@ -20,10 +20,6 @@ urlpatterns = [
         UserImagesListView.as_view(),
         name="user_images_list",
     ),
-<<<<<<< HEAD
-
-=======
     path("images/<slug:slug>/", GenerateExpiringLink.as_view(), name="expiring_link"),
     path("images/<int:id>/original/", OriginalFileLink.as_view(), name="original_file"),
->>>>>>> 486168d
 ]
