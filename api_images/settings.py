@@ -18,14 +18,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-#heroku database
-DATABASES = {}
-DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
-
-if 'DATABASE_URL' in os.environ:
-    DATABASES['default'] = dj_database_url.parse(os.environ['DATABASE_URL'])
-
-
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -41,7 +33,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 AUTH_USER_MODEL = "api.User"
-# LOGIN_REDIRECT_URL = '/create/'
+LOGIN_REDIRECT_URL = "/create/"
 
 # Application definition
 
@@ -102,11 +94,15 @@ WSGI_APPLICATION = "api_images.wsgi.application"
 #         "NAME": BASE_DIR / "db.sqlite3",
 #     }
 # }
-# DATABASES = {'default': dj_database_url.config(default=os.environ["DATABASE_URI"])}
 
-# DATABASES = {
-#     "default": dj_database_url.config(default="postgres://localhost"),
-# }
+# heroku database
+DATABASES = {}
+DATABASES["default"] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+
+if "DATABASE_URL" in os.environ:
+    DATABASES["default"] = dj_database_url.parse(os.environ["DATABASE_URL"])
+
+
 LOGOUT_REDIRECT_URL = "/login/"
 
 # Password validation
@@ -126,32 +122,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'verbose',
-#         },
-#         'file': {
-#             'class': 'logging.FileHandler',
-#             'filename': 'api_images/loggs/file.log',
-#         },
-#     },
-#     'formatters': {
-#         'verbose': {
-#             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file', 'console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
 
 
 # Internationalization
