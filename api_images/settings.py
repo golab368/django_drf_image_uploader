@@ -100,11 +100,11 @@ WSGI_APPLICATION = "api_images.wsgi.application"
 #         "NAME": BASE_DIR / "db.sqlite3",
 #     }
 # }
-# DATABASES = {'default': dj_database_url.config(default=os.environ["DATABASE_URI"])}
+DATABASES = {'default': dj_database_url.config(default=os.environ["DATABASE_URI"])}
 
-DATABASES = {
-    "default": dj_database_url.config(default="postgres://localhost"),
-}
+# DATABASES = {
+#     "default": dj_database_url.config(default="postgres://localhost"),
+# }
 LOGOUT_REDIRECT_URL = "/login/"
 
 # Password validation
