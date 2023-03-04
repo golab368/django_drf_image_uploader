@@ -1,6 +1,7 @@
 import os
 import logging
 import uuid
+import redis
 import time
 from PIL import Image
 from io import BytesIO
@@ -9,7 +10,7 @@ from celery import shared_task
 from django.conf import settings
 
 
-# r = redis.Redis(host="localhost", port=6379, db=0)
+r = redis.Redis.from_url(settings.CELERY_BROKER_URL)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
