@@ -17,12 +17,14 @@ import django_heroku
 from dotenv import load_dotenv
 
 load_dotenv()
-# db_from_env = dj_database_url.config(conn_max_age=600)
-# DATABASES = {}
-# DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 
-# db_from_env = dj_database_url.config(conn_max_age=500)
-# DATABASES['default'].update(db_from_env)
+#heroku database
+DATABASES = {}
+DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+
+if 'DATABASE_URL' in os.environ:
+    DATABASES['default'] = dj_database_url.parse(os.environ['DATABASE_URL'])
+
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -100,7 +102,7 @@ WSGI_APPLICATION = "api_images.wsgi.application"
 #         "NAME": BASE_DIR / "db.sqlite3",
 #     }
 # }
-DATABASES = {'default': dj_database_url.config(default=os.environ["DATABASE_URI"])}
+# DATABASES = {'default': dj_database_url.config(default=os.environ["DATABASE_URI"])}
 
 # DATABASES = {
 #     "default": dj_database_url.config(default="postgres://localhost"),
