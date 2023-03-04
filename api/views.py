@@ -1,30 +1,14 @@
-<<<<<<< HEAD
-from django.contrib.auth import logout
-from django.views.generic import RedirectView
-from django.urls import reverse_lazy
-from rest_framework import generics
-=======
 import os
 from django.contrib.auth import logout
 from django.views.generic import RedirectView
 from django.urls import reverse_lazy
 from rest_framework import generics, status
->>>>>>> 486168d
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
 from .serializers import ImagesSerializer
 from django.contrib.auth.views import LoginView
-<<<<<<< HEAD
-
-class LoginView(LoginView):
-    template_name = "login.html"
-    success_url = reverse_lazy('api:create')
-
-class LogoutView(RedirectView):
-    url = reverse_lazy('api:login')
-=======
 from django.views import View
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, Http404
@@ -42,7 +26,6 @@ class LoginView(LoginView):
 
 class LogoutView(RedirectView):
     url = reverse_lazy("api:login")
->>>>>>> 486168d
 
     def get(self, request, *args, **kwargs):
         logout(request)
