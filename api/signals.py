@@ -28,5 +28,3 @@ def delete_image(sender, instance, **kwargs):
             os.remove(instance.thumbnail.thumbnail_custom.path)
 
         instance.thumbnail.delete()
-
-

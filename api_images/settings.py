@@ -15,6 +15,7 @@ from pathlib import Path
 import dj_database_url
 import django_heroku
 from dotenv import load_dotenv
+
 load_dotenv()
 # db_from_env = dj_database_url.config(conn_max_age=600)
 # DATABASES = {}
@@ -38,7 +39,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 AUTH_USER_MODEL = "api.User"
-#LOGIN_REDIRECT_URL = '/create/'
+# LOGIN_REDIRECT_URL = '/create/'
 
 # Application definition
 
@@ -54,9 +55,6 @@ INSTALLED_APPS = [
     "api",
     "django_heroku",
     "django_extensions",
-
-
-
 ]
 
 MIDDLEWARE = [
@@ -105,7 +103,7 @@ WSGI_APPLICATION = "api_images.wsgi.application"
 # DATABASES = {'default': dj_database_url.config(default=os.environ["DATABASE_URI"])}
 
 DATABASES = {
-    'default': dj_database_url.config(default='postgres://localhost'),
+    "default": dj_database_url.config(default="postgres://localhost"),
 }
 LOGOUT_REDIRECT_URL = "/login/"
 
@@ -169,8 +167,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -180,17 +178,16 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
 
-
 # CELERY_BROKER_URL = 'redis://localhost:6379/0'
 # CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
-# #Redis Heroku 
-CELERY_BROKER_URL = os.environ.get('REDIS_URL')
-CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL')
+# #Redis Heroku
+CELERY_BROKER_URL = os.environ.get("REDIS_URL")
+CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL")
 
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
 
 if os.environ.get("ENV") == "test":
     CELERY_TASK_ALWAYS_EAGER = True

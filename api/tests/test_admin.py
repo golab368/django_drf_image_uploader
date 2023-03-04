@@ -12,7 +12,6 @@ from api.models import Images, UserProfile
 from django.contrib.auth.models import User
 
 
-
 class ImagesAdminTests(TestCase):
     def setUp(self):
         app.conf.update(CELERY_ALWAYS_EAGER=True)
@@ -155,7 +154,6 @@ class ImagesAdminTests(TestCase):
 
     #     self.assertIsNotNone(image.thumbnail)  # thumbnail should be generated
     #     self.assertIsNotNone(image.expiration_time)  # expiration_time should be set
-
 
     def tearDown(self):
         time.sleep(1.5)

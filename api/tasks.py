@@ -28,6 +28,7 @@ from PIL import Image
 @shared_task
 def generate_thumbnail(uploaded_image_name, account_tier, width=None, height=None):
     from .models import Images, Thumbnail, UserProfile
+
     time.sleep(0.5)
     get_author = Images.objects.get(image=uploaded_image_name)
     is_super_user = get_author.author.userprofile.user.is_superuser
@@ -40,7 +41,6 @@ def generate_thumbnail(uploaded_image_name, account_tier, width=None, height=Non
         is super user = {is_super_user}:{width}:{height}:{sizes}"""
     )
 
-
     file_path = os.path.join(settings.MEDIA_ROOT, f"{uploaded_image_name}")
     if account_tier == UserProfile.BASIC:
         sizes.append((200, 200))
@@ -48,11 +48,8 @@ def generate_thumbnail(uploaded_image_name, account_tier, width=None, height=Non
         sizes.append((200, 200))
         sizes.append((400, 400))
         if is_super_user == True:
-                sizes.append((width, height))
-    logger.debug(
-        f"Added to sizes {sizes}"
-    )
-
+            sizes.append((width, height))
+    logger.debug(f"Added to sizes {sizes}")
 
     if not os.path.exists(file_path):
         logger.error(f"File {file_path} does not exist")
@@ -83,11 +80,10 @@ def generate_thumbnail(uploaded_image_name, account_tier, width=None, height=Non
                 # Save thumbnail to in-memory file as BytesIO
                 temp_thumb = BytesIO()
                 image_copy = image.copy()
-                #image_copy.thumbnail(size)
-
+                # image_copy.thumbnail(size)
 
                 if size[0] is not None and size[1] is not None:
-                    #logger.error(f"Size {size} checker {size[0]} {size[1]}:::size i {size[i]}")
+                    # logger.error(f"Size {size} checker {size[0]} {size[1]}:::size i {size[i]}")
                     image_copy.thumbnail(size)
                 image_copy.save(temp_thumb, FTYPE)
                 temp_thumb.seek(0)
@@ -120,4 +116,3 @@ def generate_thumbnail(uploaded_image_name, account_tier, width=None, height=Non
 
     except:
         logger.exception(f"Error generating thumbnail for file {file_path}")
-

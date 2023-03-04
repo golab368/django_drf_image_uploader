@@ -96,7 +96,7 @@ class Images(models.Model):
 
         user_profile = UserProfile.objects.get(user=self.author)
         account_tier = user_profile.account_type
-        #self.thumbnail_queued = True
+        # self.thumbnail_queued = True
 
         super().save(*args, **kwargs)
 
