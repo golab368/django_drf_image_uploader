@@ -1,13 +1,9 @@
 from io import BytesIO
 import os
 import uuid
-
 from PIL import Image
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.utils.text import slugify
 
-
-from .celery import app
 from celery import shared_task
 from django.conf import settings
 import redis
@@ -30,23 +26,33 @@ from PIL import Image
 
 
 @shared_task
-def generate_thumbnail(uploaded_image_name, account_tier):
+def generate_thumbnail(uploaded_image_name, account_tier, width=None, height=None):
     from .models import Images, Thumbnail, UserProfile
-
-    logger.debug(
-        f"Task generate_thumbnail {uploaded_image_name} with image_id=::::{account_tier}::::"
-    )
+    time.sleep(0.5)
+    get_author = Images.objects.get(image=uploaded_image_name)
+    is_super_user = get_author.author.userprofile.user.is_superuser
 
     sizes = []
+
+    logger.debug(
+        f"""Task generate_thumbnail {uploaded_image_name}
+        account type {account_tier}
+        is super user = {is_super_user}:{width}:{height}:{sizes}"""
+    )
+
+
     file_path = os.path.join(settings.MEDIA_ROOT, f"{uploaded_image_name}")
     if account_tier == UserProfile.BASIC:
         sizes.append((200, 200))
-    elif account_tier == UserProfile.PREMIUM:
+    elif account_tier in [UserProfile.PREMIUM, UserProfile.ENTERPRISE]:
         sizes.append((200, 200))
         sizes.append((400, 400))
-    elif account_tier == UserProfile.ENTERPRISE:
-        sizes.append((200, 200))
-        sizes.append((400, 400))
+        if is_super_user == True:
+                sizes.append((width, height))
+    logger.debug(
+        f"Added to sizes {sizes}"
+    )
+
 
     if not os.path.exists(file_path):
         logger.error(f"File {file_path} does not exist")
@@ -77,7 +83,12 @@ def generate_thumbnail(uploaded_image_name, account_tier):
                 # Save thumbnail to in-memory file as BytesIO
                 temp_thumb = BytesIO()
                 image_copy = image.copy()
-                image_copy.thumbnail(size)
+                #image_copy.thumbnail(size)
+
+
+                if size[0] is not None and size[1] is not None:
+                    #logger.error(f"Size {size} checker {size[0]} {size[1]}:::size i {size[i]}")
+                    image_copy.thumbnail(size)
                 image_copy.save(temp_thumb, FTYPE)
                 temp_thumb.seek(0)
 
@@ -94,6 +105,8 @@ def generate_thumbnail(uploaded_image_name, account_tier):
                     thumbnail.thumbnail_200 = thumb_data
                 elif i == 1:
                     thumbnail.thumbnail_400 = thumb_data
+                elif i == 2 and size[0] is not None and size[1] is not None:
+                    thumbnail.thumbnail_custom = thumb_data
 
             # Save thumbnail to database
             thumbnail.save()
@@ -107,3 +120,4 @@ def generate_thumbnail(uploaded_image_name, account_tier):
 
     except:
         logger.exception(f"Error generating thumbnail for file {file_path}")
+

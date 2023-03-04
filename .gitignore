@@ -26,7 +26,7 @@ wheels/
 *.egg 
 *.manifest 
 *.spec 
-
+db.sqlite3
 # Log files
 pip-log.txt
 pip-delete-this-directory.txt

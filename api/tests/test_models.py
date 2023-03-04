@@ -6,6 +6,7 @@ from io import BytesIO
 from api.models import Images, UserProfile
 from api.celery import app
 import factory
+import time
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -29,12 +30,12 @@ class ImagesModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         app.conf.update(CELERY_ALWAYS_EAGER=True)
-        image_data = BytesIO()
-        image = Image.new("RGB", (900, 900))
-        image.save(image_data, format="JPEG")
-        image_data.seek(0)
+        cls.image_data = BytesIO()
+        cls.image = Image.new("RGB", (900, 900))
+        cls.image.save(cls.image_data, format="JPEG")
+        cls.image_data.seek(0)
         cls.image = SimpleUploadedFile(
-            "test_image.jpg", image_data.getvalue(), content_type="image/jpeg"
+            "test_image.jpg", cls.image_data.getvalue(), content_type="image/jpeg"
         )
 
     def test_create_image_user_enterprise_with_expiration_time(self):
@@ -91,3 +92,8 @@ class ImagesModelTest(TestCase):
         self.assertTrue(image_obj.thumbnail is not None)
         self.assertTrue(image_obj.thumbnail.thumbnail_200.name)
         self.assertFalse(image_obj.thumbnail.thumbnail_400.name)
+
+    def tearDown(self):
+        time.sleep(1.5)
+        for image in Images.objects.all():
+            image.delete()

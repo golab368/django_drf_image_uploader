@@ -2,9 +2,7 @@ from django.contrib import admin
 from django import forms
 from django.urls import reverse
 from django.utils.html import format_html
-
-
-from .models import Images, UserProfile, ThumbnailCustom, User
+from .models import Images, UserProfile, User
 
 
 class ImagesForm(forms.ModelForm):
@@ -15,12 +13,17 @@ class ImagesForm(forms.ModelForm):
         required=False, label="Thumbnail Height (in pixels)"
     )
     expiring_seconds = forms.IntegerField(
-        required=False, label="Expiring seconds (between 300 and 30000)"
+        required=False, help_text="Enter a positive integer to set up expiration time"
     )
 
     class Meta:
         model = Images
-        fields = "__all__"
+        fields = (
+            "image",
+            "created",
+            "author",
+            "expiration_time",
+        )
 
 
 class ImagesAdmin(admin.ModelAdmin):
@@ -37,38 +40,34 @@ class ImagesAdmin(admin.ModelAdmin):
         thumbnail_height = form.cleaned_data.get("thumbnail_height")
 
         if thumbnail_width is not None and thumbnail_height is not None:
-            if obj.make_thumbnail_custom(thumbnail_width, thumbnail_height):
-                thumbnail_custom = ThumbnailCustom.objects.create()
-                thumbnail_custom.save()
-                obj.thumbnail_custom = thumbnail_custom
+            obj.save(width=thumbnail_width, height=thumbnail_height)
+
         super().save_model(request, obj, form, change)
 
-    def get_fields(self, request, obj=None):
-        fields = super().get_fields(request, obj)
-        if obj and obj.thumbnail_custom:
-            fields += ("thumbnail_custom",)
-        return fields
+    # def get_fields(self, request, obj=None):
+    #     fields = super().get_fields(request, obj)
+    #     if obj and obj.thumbnail.thumbnail_custom:
+    #         fields += ("thumbnail_custom",)
+    #     return fields
 
     def get_original_file_link_html(self, obj):
         """
         Return an HTML link to the originally uploaded file that expires after a number of seconds.
         """
         if obj.original_file_link:
-            remaining_time = (
-                obj.get_remaining_time_and_set_expiration_expiring_seconds()
-            )
-            if remaining_time != None and remaining_time != "":
-                remaining_time = int(remaining_time)
-                if remaining_time <= 0:
-                    return "Link has expired"
+            remaining_time = obj.get_expiring_seconds(obj.expiring_seconds)
+            if type(remaining_time) != str:
+                # remaining_time = float(remaining_time)
+                # if remaining_time <= 0:
+                #     return "Link has expired"
                 return format_html(
                     '<a href="{}?expires={}" target="_blank">View original file (expires in {} seconds)</a>',
-                    reverse("original_file_link", args=[obj.id]),
+                    reverse("api:original_file", args=[obj.id]),
                     remaining_time,
                     remaining_time,
                 )
             else:
-                return "Expiring link not provided"
+                return f"Link has expired {obj.expiration}"
         else:
             return "No original file uploaded."
 

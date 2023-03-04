@@ -1,10 +1,5 @@
-import os
 import uuid
-from io import BytesIO
-from PIL import Image
-
 from django.contrib.auth.models import AbstractUser
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils import timezone
@@ -29,10 +24,12 @@ class UserProfile(models.Model):
     BASIC = "Basic"
     PREMIUM = "Premium"
     ENTERPRISE = "Enterprise"
+    NONE = "None"
     ACCOUNT_TIERS = (
         (BASIC, "Basic"),
         (PREMIUM, "Premium"),
         (ENTERPRISE, "Enterprise"),
+        (NONE, "None"),
     )
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -42,19 +39,16 @@ class UserProfile(models.Model):
         return self.user.username
 
 
-class ThumbnailCustom(models.Model):
-    thumbnail_custom = models.ImageField(null=True, blank=True)
-
-
 class Thumbnail(models.Model):
     thumbnail_200 = models.ImageField(null=True, blank=True)
     thumbnail_400 = models.ImageField(null=True, blank=True)
+    thumbnail_custom = models.ImageField(null=True, blank=True)
 
 
 class Images(models.Model):
-    title = models.CharField(max_length=250)
+    title = models.CharField(max_length=250, null=True, blank=True)
     image = models.ImageField(upload_to=user_directory_path)
-    slug = models.SlugField(max_length=250, unique_for_date="created")
+    slug = models.SlugField(max_length=250, null=True, blank=True)
     created = models.DateTimeField(default=timezone.now)
     original_file_link = models.URLField(null=True, blank=True)
     author = models.ForeignKey(User, on_delete=models.PROTECT, related_name="author")
@@ -65,13 +59,6 @@ class Images(models.Model):
         null=True,
         blank=True,
         related_name="thumbnail",
-    )
-    thumbnail_custom = models.OneToOneField(
-        ThumbnailCustom,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="image_custom",
     )
     expiration_time = models.PositiveIntegerField(
         blank=True,
@@ -86,87 +73,61 @@ class Images(models.Model):
         help_text="Enter a positive integer to set up expiration time",
     )
 
+    def delete(self, using=None, keep_parents=False):
+        super().delete(using=using, keep_parents=keep_parents)
+
     def save(self, *args, **kwargs):
-        filename = os.path.basename(self.image.name)
-        title, _ = os.path.splitext(filename)
-        self.title = title
 
+        # Get values from admin panel
+        self.width = kwargs.pop("width", None)
+        self.height = kwargs.pop("height", None)
+        # Set the title and slug based on the image file name
+        self.title = self.image.name
         self.slug = slugify(self.title)
-
-        user_profile = UserProfile.objects.get(user=self.author)
-
-        account_tier = user_profile.account_type
         if self.image:
             self.original_file_link = self.image
 
-        if not self.thumbnail:
-            super().save(*args, **kwargs)
-            generate_thumbnail.delay(self.image.name, account_tier)
-        else:
-            super().save(*args, **kwargs)
+        # Set the expiration time to 24 hours after creation if not already set
+        if not self.expiration_time:
+            if type(self.expiring_seconds) != int:
+                self.expiring_seconds = 86400
+            elif self.expiring_seconds > 86400:
+                self.expiring_seconds = 86400
 
-    def make_thumbnail_custom(self, thumbnail_custom, width, height):
+        user_profile = UserProfile.objects.get(user=self.author)
+        account_tier = user_profile.account_type
+        #self.thumbnail_queued = True
 
-        if width and height:
-            size = (width, height)
+        super().save(*args, **kwargs)
 
-        if self.image:
-            image = Image.open(self.image)
+        if not self.thumbnail and self.width is not None and self.height is not None:
+            if not getattr(self, "thumbnail_queued", False):
+                generate_thumbnail.delay(
+                    self.image.name, account_tier, width=self.width, height=self.height
+                )
+                self.thumbnail_queued = True
+        elif not self.thumbnail and self.width is None and self.height is None:
 
-            thumb_name = uuid.uuid4().hex
-            thumb_extension = os.path.splitext(self.image.name)[1]
-            thumb_filename = f"{thumb_name}_thumb_custom{size}{thumb_extension}"
+            if not getattr(self, "thumbnail_queued", False):
+                generate_thumbnail.delay(self.image.name, account_tier)
+                self.thumbnail_queued = True
 
-            if thumb_extension in [".jpg", ".jpeg"]:
-                FTYPE = "JPEG"
-            elif thumb_extension == ".gif":
-                FTYPE = "GIF"
-            elif thumb_extension == ".png":
-                FTYPE = "PNG"
-            else:
-                return False
+    def get_remaining_time_and_set_expiration(self, exp_time):
 
-            temp_thumb = BytesIO()
-            image_copy = image.copy()
-            image_copy.thumbnail(size)
-            image_copy.save(temp_thumb, FTYPE)
-            temp_thumb.seek(0)
-
-            thumb_data = InMemoryUploadedFile(
-                temp_thumb,
-                None,
-                thumb_filename,
-                f"image/{FTYPE.lower()}",
-                temp_thumb.tell(),
-                None,
-            )
-
-            thumbnail_custom.thumbnail_custom = thumb_data
-
-            return True
-
-        return False
-
-    def get_remaining_time_and_set_expiration(self):
-
-        if self.expiration_time:
+        if exp_time:
             elapsed_time = timezone.now() - self.created
-            remaining_time = self.expiration_time - elapsed_time.total_seconds()
-            if remaining_time < 0:
-                remaining_time = 0
+            remaining_time = float(exp_time) - elapsed_time.total_seconds()
+            if remaining_time <= 0:
+                # remaining_time = 0
                 self.expiration = True
                 self.save()
-                return "This image has expired"
+                self.delete()
+                return "This image has expired and was deleted"
             return remaining_time
         return None
 
-    def get_remaining_time_and_set_expiration_expiring_seconds(self):
+    def get_expiration_time(self, exp_time=0):
+        return self.get_remaining_time_and_set_expiration(exp_time)
 
-        if self.expiring_seconds:
-            elapsed_time = timezone.now() - self.created
-            remaining_time = self.expiring_seconds - elapsed_time.total_seconds()
-            if remaining_time < 0:
-                remaining_time = 0
-                return "This image has expired"
-            return remaining_time
-        return None
+    def get_expiring_seconds(self, exp_time=0):
+        return self.get_remaining_time_and_set_expiration(exp_time)

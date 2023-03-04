@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "api",
     "django_heroku",
+    "django_extensions",
+
 
 
 ]
@@ -124,6 +126,32 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'verbose',
+#         },
+#         'file': {
+#             'class': 'logging.FileHandler',
+#             'filename': 'api_images/loggs/file.log',
+#         },
+#     },
+#     'formatters': {
+#         'verbose': {
+#             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file', 'console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }
 
 
 # Internationalization
@@ -152,10 +180,20 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
 
+<<<<<<< HEAD
 # settings.py
 
 CELERY_BROKER_URL = os.environ.get('REDIS_URL')
 CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL')
+=======
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+# #Redis Heroku 
+# CELERY_BROKER_URL = os.environ.get('REDIS_URL')
+# CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL')
+>>>>>>> 486168d
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
