@@ -1,7 +1,6 @@
 import os
 import logging
 import uuid
-import redis
 import time
 from PIL import Image
 from io import BytesIO
@@ -11,9 +10,6 @@ from django.conf import settings
 
 
 # r = redis.Redis(host="localhost", port=6379, db=0)
-r = redis.Redis(
-    host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB
-)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
