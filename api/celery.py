@@ -18,7 +18,9 @@ app = Celery("api")
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
 # Update broker URL to use Redis
-app.conf.update(BROKER_URL=os.environ.get('REDIS_URL', 'redis://localhost:6379/0'))
+redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+app.conf.update(BROKER_URL=redis_url)
+print(f'BROKER_URL set to {redis_url}')
 
 # Automatically discover tasks in the 'api.tasks' module
 app.autodiscover_tasks(['api.tasks'])
