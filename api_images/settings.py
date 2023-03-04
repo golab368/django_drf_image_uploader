@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "api",
     "django_heroku",
     "django_extensions",
+    "api.celery",
 ]
 
 MIDDLEWARE = [
