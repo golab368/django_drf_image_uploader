@@ -3,10 +3,10 @@ import os
 from celery import Celery
 from django.conf import settings
 # set the default Django settings module for the 'celery' program.
-#REDIS_URL = os.environ.get('REDIS_URL')
+REDIS_URL = os.environ.get('REDIS_URL')
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "api_images.settings")
 # os.environ.setdefault('REDIS_URL', 'redis://localhost:6379/0')
-#os.environ.setdefault('REDIS_URL')
+os.environ.setdefault(REDIS_URL)
 
 app = Celery("api")
 app.config_from_object("django.conf:settings", namespace="CELERY")
