@@ -10,7 +10,10 @@ from celery import shared_task
 from django.conf import settings
 
 
-r = redis.Redis.from_url(settings.CELERY_BROKER_URL)
+# r = redis.Redis(host="localhost", port=6379, db=0)
+# r = redis.Redis(
+#     host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB
+# )
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
