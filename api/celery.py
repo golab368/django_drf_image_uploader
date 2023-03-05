@@ -10,6 +10,7 @@ app = Celery("api")
 app.config_from_object("django.conf:settings", namespace="CELERY")
 app.conf.update(BROKER_URL=os.environ['REDIS_URL'],
                 CELERY_RESULT_BACKEND=os.environ['REDIS_URL'])
-app.autodiscover_tasks(["api.tasks"])
-
+# app.autodiscover_tasks(["api.tasks"])
+from api.tasks import generate_thumbnail
+app.autodiscover_tasks(lambda: [generate_thumbnail])
 
