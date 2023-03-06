@@ -68,11 +68,11 @@ or
 # Screenshots
 
 <picture>
-  <img alt="" src="https://imgur.com/LkdVDtm">
+  <img alt="" src="https://i.imgur.com/LkdVDtm_d.webp?maxwidth=760&fidelity=grand">
 </picture>
 <picture>
-  <img alt="" src="https://imgur.com/l3I5VUK">
+  <img alt="" src="https://i.imgur.com/l3I5VUK.png">
 </picture>
 <picture>
-  <img alt="" src="https://imgur.com/F4kXVTJ">
+  <img alt="" src="https://i.imgur.com/F4kXVTJ_d.webp?maxwidth=760&fidelity=grand">
 </picture>
