@@ -18,12 +18,15 @@ Admin/superusers are able to create arbitrary thumbnail sizes
 
 .herokuapp.com/ in progres
 
-# Features
+# Coverage
 
-- 80% test coverage
 ![screenshot](https://i.imgur.com/L2Kl4VO.png)
 
 # Technologies
+- Django DRF
+- Redis
+- Celery
+- in progres Heroku
 
 # Setup
 
